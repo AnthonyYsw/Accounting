@@ -10,8 +10,9 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 
-
-font = FontProperties(fname='chinese.ttf')
+script_dir = os.path.dirname(os.path.realpath(__file__))
+font_path = os.path.join(script_dir, 'chinese.ttf')
+font = FontProperties(fname=font_path)
 
 class ExcelApp(QWidget):
     def __init__(self):
