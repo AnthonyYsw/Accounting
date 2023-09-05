@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 
 
-font = FontProperties(fname='chinese.ttf')  # 请将此路径更改为你的字体文件的实际路径
+font = FontProperties(fname='chinese.ttf')
 
 class ExcelApp(QWidget):
     def __init__(self):
@@ -22,7 +22,7 @@ class ExcelApp(QWidget):
         self.layout = QVBoxLayout()
         self.sub_layout = QGridLayout()
         
-        self.splitter = QSplitter()  # 创建一个QSplitter实例
+        self.splitter = QSplitter()
 
         self.table = QTableWidget(self)
         self.table.setRowCount(0)
@@ -34,15 +34,15 @@ class ExcelApp(QWidget):
         header.setSectionResizeMode(2, QHeaderView.Stretch)
         header.setSectionResizeMode(3, QHeaderView.Stretch)
 
-        self.splitter.addWidget(self.table)  # 将表格添加到QSplitter
+        self.splitter.addWidget(self.table) 
 
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         
-        self.splitter.addWidget(self.canvas)  # 将图表添加到QSplitter
-        self.splitter.setSizes([330, 500])  # 设置初始比例
+        self.splitter.addWidget(self.canvas)
+        self.splitter.setSizes([330, 500]) 
 
-        self.layout.addWidget(self.splitter)  # 将QSplitter添加到主布局
+        self.layout.addWidget(self.splitter)
 
         self.add_row_button = QPushButton('添加行', self)
         self.add_row_button.clicked.connect(self.add_row)
