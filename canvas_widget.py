@@ -21,11 +21,13 @@ class CanvasWidget(FigureCanvas):
             if category_widget:
                 category = category_widget.currentText()
                 amount_item = self.table.item(row, 1)
-                if amount_item and amount_item.text().isdigit():
-                    amount = int(amount_item.text())
-                    data[category] += amount
-                    total_expense += amount  # Add amount to total expense
-
+                if amount_item:
+                    try:
+                        amount = float(amount_item.text())
+                        data[category] += amount
+                        total_expense += amount  # Add amount to total expense
+                    except ValueError:
+                        pass  # or you might want to handle this error in some way
         labels = [f'{key} ({value}镑)' for key, value in data.items()]
         sizes = data.values()
 
@@ -34,6 +36,6 @@ class CanvasWidget(FigureCanvas):
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         # Display total expense at the top of the chart
-        ax.text(0, 1.1, f'{total_expense}镑 <=> {total_expense * 9}元', ha='center', va='center', fontsize=50, fontproperties=font, fontweight='bold', color='red')
+        ax.text(0, 1.1, f'{total_expense}镑', ha='center', va='center', fontsize=50, fontproperties=font, fontweight='bold', color='red')
 
         self.draw()

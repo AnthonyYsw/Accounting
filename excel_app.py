@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QComboBox, QMenu, QFileDialog, QWidget, QVBoxLayout, QSplitter, QPushButton, QGridLayout
 from table_widget import TableWidget
 from canvas_widget import CanvasWidget
-from utilities import save_data, load_data
-from constants import SCRIPT_DIR, FONT_PATH, DEFAULT_DIRECTORY
+from constants import DEFAULT_DIRECTORY
 from collections import defaultdict
 import os
 import pickle
+import exchange_rate as ex
 
 class ExcelApp(QWidget):
     def __init__(self):
@@ -37,7 +37,7 @@ class ExcelApp(QWidget):
 
     def initButtons(self):
         buttons = [
-            ("打印文件", self.print_bill), 
+            ("打印账单", self.print_bill), 
             ("保存", self.save_data), 
             ("另存为", self.save_data_as), 
             ("加载", self.load_data), 
@@ -199,7 +199,8 @@ class ExcelApp(QWidget):
             bill_content.append(f"{en_category[category]}: £{amount} ({percentage:.2f}%)")
 
         bill_content.append("-------------------")
-        bill_content.append(f"Total: £{total_amount}    ￥{total_amount * 9.1} ")
+        bill_content.append(f"Total: £{total_amount}  ￥{total_amount * ex.get_icbc_gbp_rate()} ")
+        bill_content.append(f"Exchange Rate: {ex.get_icbc_gbp_rate()}")
 
         bill_str = '\n'.join(bill_content)
         print(bill_str)
