@@ -69,6 +69,8 @@ class ExcelApp(QWidget):
         self.sub_layout.addWidget(self.pie_chart_button, 2, 0)
 
         self.current_file_path = None
+        self.default_directory = "/home/anthony/Documents/123/Counting"
+
 
     def add_row(self):
         row_position = self.table.rowCount()
@@ -89,7 +91,7 @@ class ExcelApp(QWidget):
 
     def save_data_as(self):  # New method for "Save As" functionality
         options = QFileDialog.Options()
-        fileName, _ = QFileDialog.getSaveFileName(self, "Save As", os.getcwd(), "Pickle Files (*.pkl);;All Files (*)", options=options)
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save As", self.default_directory, "Pickle Files (*.pkl);;All Files (*)", options=options)
         if fileName:
             if not fileName.endswith('.pkl'):
                 fileName += '.pkl'
@@ -140,13 +142,14 @@ class ExcelApp(QWidget):
         sizes = data.values()
 
         ax = self.figure.add_subplot(111)
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'fontproperties': font, 'fontsize': 30})
+        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'fontproperties': font, 'fontsize': 30}, wedgeprops=dict(width=0.3, edgecolor='w'))
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         # Display total expense at the top of the chart
         ax.text(0, 1.1, f'{total_expense}镑 <=> {total_expense * 9}元', ha='center', va='center', fontsize=50, fontproperties=font, fontweight='bold', color='red')
 
         self.canvas.draw()
+
 
     def remove_row(self):
         selected_indexes = self.table.selectedIndexes()
@@ -179,7 +182,7 @@ class ExcelApp(QWidget):
                 pickle.dump(data, f)
         else:
             options = QFileDialog.Options()
-            fileName, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()","","Pickle Files (*.pkl);;All Files (*)", options=options)
+            fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", self.default_directory, "Pickle Files (*.pkl);;All Files (*)", options=options)
             if fileName:
                 if not fileName.endswith('.pkl'):
                     fileName += '.pkl'
@@ -189,7 +192,7 @@ class ExcelApp(QWidget):
 
     def load_data(self):
         options = QFileDialog.Options()
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "", "Pickle Files (*.pkl);;All Files (*)", options=options)
+        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", self.default_directory, "Pickle Files (*.pkl);;All Files (*)", options=options)
         if fileName:
             self.current_file_path = fileName  # 更新当前文件路径
             try:
