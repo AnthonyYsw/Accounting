@@ -25,8 +25,8 @@ class TableWidget(QTableWidget):
         self.setCellWidget(row_position, 3, combo)
 
     def remove_row(self):
-        selected_indexes = self.table.selectedIndexes()
+        selected_indexes = self.selectedIndexes()
         if selected_indexes:
             rows_to_remove = set(index.row() for index in selected_indexes)
             for row in sorted(rows_to_remove, reverse=True):
-                self.table.removeRow(row)
+                self.removeRow(row)

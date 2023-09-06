@@ -1,8 +1,10 @@
-from PyQt5.QtWidgets import QTableWidgetItem, QComboBox, QMenu, QFileDialog, QWidget, QVBoxLayout, QSplitter, QPushButton, QGridLayout
+from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QComboBox, QMenu, QFileDialog, QWidget, QVBoxLayout, QSplitter, QPushButton, QGridLayout
 from table_widget import TableWidget
 from canvas_widget import CanvasWidget
 from utilities import save_data, load_data
 from constants import SCRIPT_DIR, FONT_PATH, DEFAULT_DIRECTORY
+from collections import defaultdict
+import os
 import pickle
 
 class ExcelApp(QWidget):
@@ -34,7 +36,15 @@ class ExcelApp(QWidget):
         self.setWindowTitle(self.tr('Account+'))
 
     def initButtons(self):
-        buttons = [("添加行", self.table.add_row), ("保存", self.save_data), ("另存为", self.save_data_as), ("加载", self.load_data), ("生成饼状图", self.canvas.update_pie_chart)]
+        buttons = [
+            ("打印文件", self.print_bill), 
+            ("保存", self.save_data), 
+            ("另存为", self.save_data_as), 
+            ("加载", self.load_data), 
+            ("生成饼状图", self.canvas.update_pie_chart), 
+            ("打开新窗口", self.open_new_window)
+        ]
+        
         for i, (text, func) in enumerate(buttons):
             button = QPushButton(text, self)
             button.clicked.connect(func)
@@ -69,9 +79,12 @@ class ExcelApp(QWidget):
             with open(fileName, 'wb') as f:
                 pickle.dump(data, f)  # Save data list to file
 
-
     def contextMenuEvent(self, event):
         contextMenu = QMenu(self)
+
+        addRowAct = contextMenu.addAction("添加行")
+        addRowAct.triggered.connect(self.table.add_row)
+
         delRowAct = contextMenu.addAction("删除行")
         delRowAct.triggered.connect(self.remove_row)
         contextMenu.exec_(self.mapToGlobal(event.pos()))
@@ -135,3 +148,58 @@ class ExcelApp(QWidget):
                             self.table.setItem(row, column, QTableWidgetItem(column_data))
             except FileNotFoundError:
                 pass
+
+    def add_row(self):
+        self.table.add_row()
+
+    def remove_row(self):
+        self.table.remove_row()
+
+    def open_new_window(self):
+        self.new_window = ExcelApp()
+        self.new_window.show()
+
+    def print_bill(self):
+        en_category = {
+            "交通"   : "Transport    ",
+            "日用品" : "Daily Use    ",
+            "学习"   : "Study        ",
+            "日常饮食": "Diet         ",
+            "社交活动": "Social       ",
+            "赠送"   : "Gift         ",
+            "娱乐"   : "Entertainment"
+        }
+        if not self.current_file_path:
+            QMessageBox.warning(self, "警告", "需要保存文件后再打印")
+            return
+
+        with open(self.current_file_path, 'rb') as f:
+            data = pickle.load(f)
+
+        filename = os.path.basename(self.current_file_path).replace('.pkl', '')
+        bill_content = [f"{filename}\n-------------------"]
+
+        total_amount = 0
+        category_totals = defaultdict(float)
+        for i, row_data in enumerate(data):
+            item_name = row_data[0]
+            amount = float(row_data[1])
+            date = row_data[2]
+            category = row_data[3]
+
+            total_amount += amount
+            category_totals[category] += amount
+
+            bill_content.append(f"{i+1}. {item_name} ....... £{amount} {date}")
+
+        bill_content.append("-------------------")
+
+        for category, amount in category_totals.items():
+            percentage = (amount / total_amount) * 100
+            bill_content.append(f"{en_category[category]}: £{amount} ({percentage:.2f}%)")
+
+        bill_content.append("-------------------")
+        bill_content.append(f"Total: £{total_amount}    ￥{total_amount * 9.1} ")
+
+        bill_str = '\n'.join(bill_content)
+        print(bill_str)
